@@ -1,6 +1,38 @@
 <div class="container">
   <h1>Thông tin hệ thống</h1>
-  <div *ngIf="systemData; else loading"></div>
+  <div *ngIf="systemData; else loading">
+    <h2>System Information</h2>
+    <p><strong>Name:</strong> {{ systemData.SYS.systemName }}</p>
+    <p><strong>Baseboard:</strong> {{ systemData.SYS.systemBaseboard }}</p>
+    <p><strong>Type:</strong> {{ systemData.SYS.systemType }}</p>
+
+    <h2>CPU Information</h2>
+    <p><strong>Name:</strong> {{ systemData.CPU.cpuName }}</p>
+    <p><strong>Usage:</strong> {{ systemData.CPU.cpuUsage }}</p>
+    <p><strong>Temperature:</strong> {{ systemData.CPU.cpuTemp }}</p>
+
+    <h2>GPU Information</h2>
+    <div *ngFor="let gpu of systemData.GPU">
+      <p><strong>Name:</strong> {{ gpu.gpuName }}</p>
+      <p><strong>Usage:</strong> {{ gpu.gpuUsage }}</p>
+      <p><strong>Temperature:</strong> {{ gpu.gpuTemp }}</p>
+    </div>
+
+    <h2>RAM Information</h2>
+    <p><strong>Usage:</strong> {{ systemData.RAM.ramUsage }}</p>
+    <p><strong>Total:</strong> {{ systemData.RAM.ramTotal }}</p>
+
+    <h2>Network Information</h2>
+    <div *ngFor="let net of systemData.NET">
+      <p><strong>Interface:</strong> {{ net.interface }}</p>
+      <p><strong>Type:</strong> {{ net.type }}</p>
+      <p><strong>MAC:</strong> {{ net.mac }}</p>
+      <p><strong>Default:</strong> {{ net.default }}</p>
+      <p><strong>Speed:</strong> {{ net.speed }}</p>
+      <p><strong>IPv4:</strong> {{ net.ip4 }}</p>
+      <p><strong>IPv6:</strong> {{ net.ip6 }}</p>
+    </div>
+  </div>
   <ng-template #loading>
     <p>Đang kết nối WebSocket...</p>
   </ng-template>

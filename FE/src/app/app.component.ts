@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { WebSocketService } from './websocket.service';
+import { systemData } from './systemData.interface';
 
 @Component({
   selector: 'app-root',
@@ -15,6 +16,7 @@ export class AppComponent {
   ngOnInit() {
     this.wsService.getSystemData().subscribe((data) => {
       this.systemData = data;
+      console.log(this.systemData);
     });
   }
 }

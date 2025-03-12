@@ -31,7 +31,7 @@ interface NET {
   ip6: string;
 }
 
-interface systemData {
+export interface systemData {
   SYS: SYS;
   CPU: CPU;
   GPU: GPU[];

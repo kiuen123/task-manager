@@ -97,7 +97,7 @@ wss.on("connection", (ws) => {
         }
     };
 
-    const interval = setInterval(sendSystemInfo, 1000); // Gửi dữ liệu mỗi 2 giây
+    const interval = setInterval(sendSystemInfo, 2000); // Gửi dữ liệu mỗi 2 giây
 
     ws.on("close", () => {
         console.log("Client disconnected");
