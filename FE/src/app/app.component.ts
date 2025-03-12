@@ -8,7 +8,7 @@ import { WebSocketService } from './websocket.service';
 })
 export class AppComponent {
   title = 'FE';
-  systemData: any;
+  systemData: systemData | undefined;
 
   constructor(private wsService: WebSocketService) {}
 

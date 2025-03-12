@@ -1,16 +1,6 @@
 <div class="container">
   <h1>Thông tin hệ thống</h1>
-  <div *ngIf="systemData; else loading">
-    <p>
-      {{ systemData.cpuName }}: {{ systemData.cpuUsage }} |
-      {{ systemData.cpuTemp }}
-    </p>
-    <p>RAM: {{ systemData.ramUsage }} | {{ systemData.totalRam }}</p>
-    <p>
-      {{ systemData.gpuName }}: {{ systemData.gpuUsage }} |
-      {{ systemData.gpuTemp }}
-    </p>
-  </div>
+  <div *ngIf="systemData; else loading"></div>
   <ng-template #loading>
     <p>Đang kết nối WebSocket...</p>
   </ng-template>
