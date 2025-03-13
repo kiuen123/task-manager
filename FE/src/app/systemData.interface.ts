@@ -14,6 +14,8 @@ interface GPU {
   gpuName: string;
   gpuUsage: string;
   gpuTemp: string;
+  gpuMemoryTotal: string;
+  gpuMemoryUsed: string;
 }
 
 interface RAM {
@@ -22,7 +24,7 @@ interface RAM {
 }
 
 interface NET {
-  interface: string;
+  interface: string;  
   type: string;
   mac: string;
   default: string;

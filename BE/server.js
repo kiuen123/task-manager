@@ -1,9 +1,10 @@
 const WebSocket = require("ws");
 const si = require("systeminformation");
-
+const express = require("express");
 const http = require("http");
 const httpPort = 3001;
-const wss = new WebSocket.Server({ port: 3000 });
+const wssPort = 3000;
+const wss = new WebSocket.Server({ port: wssPort });
 
 const getHardwareData = async () => {
     // system data
@@ -29,23 +30,23 @@ const getHardwareData = async () => {
 
     const showCPU = {
         cpuName: cpuData.brand,
-        cpuUsage: cpuUsage.currentLoad.toFixed(2) + "%",
-        cpuTemp: cpuTemp.main !== null ? cpuTemp.main.toFixed(1) + "°C" : "N/A"
+        cpuUsage: "N/A",
+        cpuTemp: "N/A"
     }
 
     const showGPU = [];
-    let index = 0;
     gpuData.controllers.forEach(gpu => {
         showGPU.push({
             gpuName: gpu.model,
-            gpuUsage: gpu.utilizationGpu !== undefined ? gpu.utilizationGpu.toFixed(2) + "%" : "N/A",
-            gpuTemp: gpu.temperatureGpu !== undefined ? gpu.temperatureGpu.toFixed(1) + "°C" : "N/A"
+            gpuUsage: "N/A",
+            gpuTemp: "N/A",
+            gpuMemoryTotal: gpu.memoryTotal !== undefined ? (gpu.memoryTotal / 1073741824).toFixed(2) + "GB" : "N/A",
+            gpuMemoryUsed: "N/A",
         });
-        index++;
     });
 
     const showRAM = {
-        ramUsage: (memData.active / 1073741824).toFixed(2) + "GB", // Dung lượng RAM sử dụng
+        ramUsage: "N/A", // Dung lượng RAM sử dụng
         ramTotal: (memData.total / 1073741824).toFixed(2) + "GB" // Tổng RAM
     };
 
@@ -74,15 +75,51 @@ const getHardwareData = async () => {
     return data;
 }
 
-// create json http response
-const server = http.createServer(async (req, res) => {
-    res.writeHead(200, { "Content-Type": "application/json" });
-    res.end(JSON.stringify(await getHardwareData()));
-});
+const getRealTimeData = async () => {
+    // cpu data
+    const cpuUsage = await si.currentLoad();
+    const cpuTemp = await si.cpuTemperature();
+    // gpu data
+    const gpuData = await si.graphics();
+    // ram data
+    const memData = await si.mem();
 
-server.listen(httpPort, () => {
-    console.log("Server is running on port " + httpPort);
-});
+    const RealTimeCPU = {
+        cpuUsage: cpuUsage.currentLoad.toFixed(2) + "%",
+        cpuTemp: cpuTemp.main !== null ? cpuTemp.main.toFixed(1) + "°C" : "N/A"
+    }
+
+    const RealTimeGPU = [];
+    gpuData.controllers.forEach(gpu => {
+        RealTimeGPU.push({
+            gpuName: gpu.model,
+            gpuUsage: gpu.utilizationGpu !== undefined ? gpu.utilizationGpu.toFixed(2) + "%" : "N/A",
+            gpuTemp: gpu.temperatureGpu !== undefined ? gpu.temperatureGpu.toFixed(1) + "°C" : "N/A",
+            gpuMemoryUsed: gpu.memoryUsed !== undefined ? (gpu.memoryUsed / 1073741824).toFixed(2) + "GB" : "N/A",
+        });
+    });
+
+    const RealTimeRAM = {
+        ramUsage: (memData.active / 1073741824).toFixed(2) + "GB", // Dung lượng RAM sử dụng
+    };
+
+    const data = {
+        CPU: RealTimeCPU,
+        GPU: RealTimeGPU,
+        RAM: RealTimeRAM,
+    };
+    return data;
+}
+
+// Start HTTP server
+http.createServer(async (req, res) => {
+    res.writeHead(200, { "Content-Type": "text/plain" });
+    const data = await getHardwareData();
+    res.end(JSON.stringify(data));
+}
+).listen(httpPort);
+
+console.log(`HTTP WebServer running on http://localhost:${httpPort}`);
 
 // Start WebSocket server
 wss.on("connection", (ws) => {
@@ -90,7 +127,7 @@ wss.on("connection", (ws) => {
 
     const sendSystemInfo = async () => {
         try {
-            const data = await getHardwareData();
+            const data = await getRealTimeData();
             ws.send(JSON.stringify(data));
         } catch (error) {
             console.error("Lỗi gửi dữ liệu:", error.message);
@@ -105,4 +142,4 @@ wss.on("connection", (ws) => {
     });
 });
 
-console.log("WebSocket Server running on ws://localhost:3000");
+console.log(`WebSocket Server running on ws://localhost:${wssPort}`);
